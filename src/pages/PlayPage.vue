@@ -8,6 +8,13 @@ for(let i=0; i<row; i++) {
   const fieldColumn = new Array(column).fill(0);
   field[i] = fieldColumn;
 }
+
+// 画面最上部の左端の縦のI-テトリミノを配置する
+field[0][0] = 1;
+field[1][0] = 1;
+field[2][0] = 1;
+field[3][0] = 1;
+
 </script>
 
 <template>
@@ -22,7 +29,9 @@ for(let i=0; i<row; i++) {
           class="block"
           v-for="(col, x) in row"
           :key="() => `${x}${y}`"
-        />
+        >
+          {{ col }}
+        </td>
       </tr>
     </table>
 
