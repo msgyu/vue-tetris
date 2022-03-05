@@ -56,4 +56,52 @@ export class Field {
         return new Field(newFieldData);
     }
 
+    canMove = (data: number[][], position: {x: number, y: number}): boolean => {
+
+        /** 移動可能なyの最大値 */
+        const moveable_y_max = this.field.length;
+
+        /** 移動可能なxの最大値 */
+        const moveable_x_max = this.field[0].length;
+
+        // 移動可能なyを超えた場合、移動不可とする
+        if(position.y >= moveable_y_max) return false;
+
+        // テトリスを移動する予定のマス目を1マスずつチェックする。
+        // 行数繰り返し処理
+        for (var number_line=0; number_line < data.length; number_line++) {
+            const rows = data[number_line];
+            
+            for (var column_number = 0; column_number < rows.length; column_number++) {
+                const block = rows[column_number];
+
+                //  テトリミノが描画される予定のマス目（block > 0）のとき
+                if (block > 0) {
+
+                    // テトリミノのマス目が、テトリスのフィールドの下にはみ出していないか判定する
+                    if (number_line + position.y > moveable_y_max -1) {
+                        return false;
+                    }
+
+                    // テトリミノのマス目が、テトリスのフィールドの左にはみ出していないか判定する
+                    if (0 > column_number + position.x) {
+                        return false;
+                    }
+
+                    // テトリミノのマス目が、テトリスのフィールドの右にはみ出していないか判定する
+                    if (column_number + position.x > moveable_x_max -1) {
+                        return false;
+                    }
+                     
+                    // テトリミノのマス目に、他のテトリミノが既に配置されているかどうか判定する
+                    if (this.field[number_line + position.y][column_number + position.x] > 0) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
 }
