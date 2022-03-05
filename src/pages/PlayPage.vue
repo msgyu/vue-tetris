@@ -13,9 +13,14 @@ const tetris = reactive({
 
 const tetromino = reactive({
   current: Tetromino.random(),
+  rotate: 0,
   position: {x: 3, y: 0},
   next: Tetromino.random(),
 });
+
+const currentTetrominoData = () => {
+   return Tetromino.rotate(tetromino.rotate, tetromino.current.data);
+}
 
 const classBlockColor = (_x: number, _y: number): string => {
   const type = tetris.field.data[_y][_x];
@@ -24,7 +29,7 @@ const classBlockColor = (_x: number, _y: number): string => {
   }
 
   const { x, y} = tetromino.position;
-  const { data } = tetromino.current;
+  const data = currentTetrominoData();
 
   if (y <= _y && _y < y + data.length) {
     const cols = data[_y - y];
@@ -51,7 +56,7 @@ const canDropCurrentTetromino = (): boolean => {
   const droppedPosition = {x, y: y + 1};
 
   // 落下中のテトリミノの位置が 1マス下の位置に移動可能か判定する
-  const data = tetromino.current.data;
+  const data = currentTetrominoData();
 
   return tetris.field.canMove(data, droppedPosition);
 }
@@ -62,7 +67,7 @@ const canDropCurrentTetromino = (): boolean => {
  */
 const nextTetrisField = () => {
   // 設置するテトリミノの状態をテトリスのフィールドに反映させる
-  const data = tetromino.current.data;
+  const data = currentTetrominoData();
   const position = tetromino.position;
 
   tetris.field.update(data, position);
@@ -74,11 +79,20 @@ const nextTetrisField = () => {
   // 次に落下するテトリミノをランダムに設定し、その落下位置を初期化する
   tetromino.current = tetromino.next;
   tetromino.next = Tetromino.random();
+  tetromino.rotate = 0;
   tetromino.position = { x:3, y:0 };
 }
 
 const onKeyDown = (e: KeyboardEvent) => {
   switch (e.key) {
+    case " ": {
+       const nextRotate = (tetromino.rotate + 1) % 4;
+       const data = Tetromino.rotate(nextRotate, tetromino.current.data);
+       if (tetris.field.canMove(data, tetromino.position)) {
+         tetromino.rotate = nextRotate;
+       }
+     }
+       break;
     case "Down":
     case "ArrowDown":
       if(canDropCurrentTetromino()) {
@@ -98,7 +112,7 @@ const onKeyDown = (e: KeyboardEvent) => {
       break;
     case "Left":
     case "ArrowLeft": {
-      const data = tetromino.current.data;
+      const data = currentTetrominoData();
       const { x, y } = tetromino.position;
       const leftPosition = {x: x - 1, y};
       if(tetris.field.canMove(data, leftPosition)) {
@@ -108,7 +122,7 @@ const onKeyDown = (e: KeyboardEvent) => {
       break;
     case "Right":
     case "ArrowRight": {
-      const data = tetromino.current.data;
+      const data = currentTetrominoData();
       const { x, y } = tetromino.position;
       const rightPosition = {x: x + 1, y};
       if(tetris.field.canMove(data, rightPosition)) {
