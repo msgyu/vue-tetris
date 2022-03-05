@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { reactive } from "vue";
+import { reactive, onMounted, onBeforeUnmount } from "vue";
 import { Tetromino, TETROMINO_TYPE } from '../common/Tetromino';
 import { Field } from '../common/Field';
 
@@ -77,19 +77,52 @@ const nextTetrisField = () => {
   tetromino.position = { x:3, y:0 };
 }
 
-
-
-
-
-setInterval(() => {
-  tetris.field = Field.deepCopy(staticField);
-
-  if (canDropCurrentTetromino()) {
-    tetromino.position.y++;
-  } else {
-    nextTetrisField();
+const onKeyDown = (e: KeyboardEvent) => {
+  switch (e.key) {
+    case "Down":
+    case "ArrowDown":
+      if(canDropCurrentTetromino()) {
+        tetromino.position.y++;
+        resetDrop();
+      } else {
+        nextTetrisField();
+      }
+      break;
   }
-}, 1 * 200);
+}
+
+onMounted(function() {
+  document.addEventListener('keydown', onKeyDown);
+});
+
+onBeforeUnmount(function() {
+  document.removeEventListener('keydown', onKeyDown);
+});
+
+
+
+
+const resetDropInterval = () => {
+  let intervalId = -1;
+
+  return () => {
+    if (intervalId !== -1) clearInterval(intervalId);
+
+    intervalId = setInterval(() => {
+      tetris.field = Field.deepCopy(staticField);
+
+      if(canDropCurrentTetromino()) {
+        tetromino.position.y++;
+      } else {
+        nextTetrisField();
+      }
+    }, 1 * 1000);
+  };
+};
+
+const resetDrop = resetDropInterval();
+
+resetDrop();
 
 tetris.field.update(tetromino.current.data, tetromino.position);
 
