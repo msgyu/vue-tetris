@@ -88,6 +88,14 @@ const onKeyDown = (e: KeyboardEvent) => {
         nextTetrisField();
       }
       break;
+    case "Up":
+    case "ArrowUp":
+      while(canDropCurrentTetromino()) {
+        tetromino.position.y++;
+        resetDrop();
+      }
+      nextTetrisField();
+      break;
   }
 }
 
