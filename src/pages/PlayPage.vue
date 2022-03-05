@@ -96,6 +96,26 @@ const onKeyDown = (e: KeyboardEvent) => {
       }
       nextTetrisField();
       break;
+    case "Left":
+    case "ArrowLeft": {
+      const data = tetromino.current.data;
+      const { x, y } = tetromino.position;
+      const leftPosition = {x: x - 1, y};
+      if(tetris.field.canMove(data, leftPosition)) {
+        tetromino.position.x--;
+      }
+    }
+      break;
+    case "Right":
+    case "ArrowRight": {
+      const data = tetromino.current.data;
+      const { x, y } = tetromino.position;
+      const rightPosition = {x: x + 1, y};
+      if(tetris.field.canMove(data, rightPosition)) {
+        tetromino.position.x++;
+      }
+    }
+      break;
   }
 }
 
