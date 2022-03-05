@@ -9,6 +9,7 @@ let staticField = new Field();
 
 const tetris = reactive({
   field: new Field(),
+  score: 0,
 });
 
 const tetromino = reactive({
@@ -71,10 +72,12 @@ const nextTetrisField = () => {
   const position = tetromino.position;
 
   tetris.field.update(data, position);
+  const { field, score } = deleteLine();
 
   // テトリミノ設置直後のテトリスのフィールドの状態を保存する
-  staticField = new Field(tetris.field.data);
+  staticField = new Field(field);
   tetris.field = Field.deepCopy(staticField);
+  tetris.score += score;
 
   // 次に落下するテトリミノをランダムに設定し、その落下位置を初期化する
   tetromino.current = tetromino.next;
@@ -166,6 +169,24 @@ const resetDrop = resetDropInterval();
 
 resetDrop();
 
+
+const deleteLine = () => {
+   let score = 0;
+   const field = tetris.field.data.filter((row) => {
+     if (row.every(col => col > 0)) {
+       score++;
+       return false;
+     }
+     return true;
+   });
+ 
+   for (let i = 0; i < score; i++) {
+     field.unshift(new Array(field[0].length).fill(0));
+   }
+ 
+   return { score, field };
+ };
+
 tetris.field.update(tetromino.current.data, tetromino.position);
 
 </script>
@@ -189,6 +210,9 @@ tetris.field.update(tetromino.current.data, tetromino.position);
     </div>
     <div class="information">
       <TetrominoPreviewComponent v-bind:tetromino="tetromino.next.data"/>
+      <ul class="data">
+        <li>スコア: {{ tetris.score }}</li>
+      </ul>
     </div>
   </div>
 </template>
@@ -238,7 +262,15 @@ tetris.field.update(tetromino.current.data, tetromino.position);
 
 /** テトリスに関する情報をテトリスのフィールドの右に表示する **/
  .information {
+   position: relative;
    margin-left: 0.5em;
  }
+ ul.data {
+    list-style: none;
+    position: absolute;
+    font-size: 1.3em;
+    padding-left: 0;
+    bottom: 0;
+  }
   
 </style>
